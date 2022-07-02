@@ -27,5 +27,13 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        Gate::define('SSmod', function () {
+            return auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com';
+        });
+
+        Gate::define('moderator', function (Moderator $moderator) {
+            return auth()->guard('moderator')->user()->id === $moderator->id;
+        });
     }
 }

@@ -27,8 +27,5 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        Blade::if('sMod' , function () {
-            return auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com';
-        });
     }
 }

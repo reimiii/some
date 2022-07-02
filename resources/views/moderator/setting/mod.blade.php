@@ -18,21 +18,21 @@
 
 @section('action')
     <div class="btn-group">
-        @sMod
-        <button type="button" class="btn btn-outline-dark">Action</button>
-        <button type="button"
-                class="btn btn-outline-dark split-bg-dark dropdown-toggle dropdown-toggle-split"
-                data-bs-toggle="dropdown"><span class="visually-hidden">Toggle Dropdown</span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"><a
-                    class="dropdown-item"
-                    href="{{ route('setting.mod.new') }}">New Moderator</a>
-            {{--            <a class="dropdown-item" href="javascript:;">Another action</a>--}}
-            {{--            <a class="dropdown-item" href="javascript:;">Something else here</a>--}}
-            {{--            <div class="dropdown-divider"></div>--}}
-            {{--            <a class="dropdown-item" href="javascript:;">Separated link</a>--}}
-        </div>
-        @endsMod
+        @if($sMod)
+            <button type="button" class="btn btn-outline-dark">Action</button>
+            <button type="button"
+                    class="btn btn-outline-dark split-bg-dark dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown"><span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right dropdown-menu-lg-end"><a
+                        class="dropdown-item"
+                        href="{{ route('setting.mod.new') }}">New Moderator</a>
+                {{--            <a class="dropdown-item" href="javascript:;">Another action</a>--}}
+                {{--            <a class="dropdown-item" href="javascript:;">Something else here</a>--}}
+                {{--            <div class="dropdown-divider"></div>--}}
+                {{--            <a class="dropdown-item" href="javascript:;">Separated link</a>--}}
+            </div>
+        @endif
     </div>
 @endsection
 
@@ -76,9 +76,9 @@
                         <th>Email</th>
                         <th>Created</th>
                         <th>Status</th>
-                        @sMod
-                        <th>Actions</th>
-                        @endsMod
+                        @if( $sMod )
+                            <th>Action</th>
+                        @endif
                     </tr>
                     </thead>
                     <tbody>
@@ -105,26 +105,28 @@
                                         <span class="badge bg-light-danger text-danger w-100">Inactive</span>
                                     @endif
                                 </td>
-                                @sMod
-                                <td>
-                                    <div class="table-actions d-flex align-items-center gap-3 fs-6">
+                                @if( $sMod )
+                                    <td>
+                                        <div class="table-actions d-flex align-items-center gap-3 fs-6">
 
-                                        <a href="{{ route('setting.mod.edit', $mod) }}"
-                                           class="text-warning"
-                                           data-bs-toggle="tooltip"
-                                           data-bs-placement="bottom" title=""
-                                           data-bs-original-title="Edit"
-                                           aria-label="Edit"><i class="bi bi-pencil-fill"></i></a>
-                                        <a href="{{ route('setting.mod.delete', $mod) }}"
-                                           class="btn-delete text-danger"
-                                           data-bs-toggle="tooltip"
-                                           data-bs-placement="bottom" title=""
-                                           data-bs-original-title="Delete" aria-label="Delete"><i
-                                                    class="bi bi-trash-fill"></i></a>
+                                            <a href="{{ route('setting.mod.edit', $mod) }}"
+                                               class="text-warning"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="bottom" title=""
+                                               data-bs-original-title="Edit"
+                                               aria-label="Edit"><i
+                                                        class="bi bi-pencil-fill"></i></a>
+                                            <a href="{{ route('setting.mod.delete', $mod) }}"
+                                               class="btn-delete text-danger"
+                                               data-bs-toggle="tooltip"
+                                               data-bs-placement="bottom" title=""
+                                               data-bs-original-title="Delete"
+                                               aria-label="Delete"><i
+                                                        class="bi bi-trash-fill"></i></a>
 
-                                    </div>
-                                </td>
-                                @endsMod
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     @else
@@ -142,6 +144,7 @@
                     @method('DELETE')
                 </form>
             </div>
+            <br>
             <div class="my-8">
                 {{ $moderator->appends(request()->only('search'))->links() }}
             </div>

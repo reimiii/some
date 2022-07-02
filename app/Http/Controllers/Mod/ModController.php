@@ -16,6 +16,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ModController extends Controller {
 
+    public static $smod = [
+        'imiia75775@gmail.com',
+        'michele96@example.com',
+        'arnold.weissnat@example.net'
+    ];
+
     public function __construct()
     {
         $this->middleware('moderator');
@@ -23,37 +29,37 @@ class ModController extends Controller {
 
     public function profile(Moderator $moderator)
     {
-
-        if ( auth()->guard('moderator')->user()->id === $moderator->id ) {
-            return view('moderator.setting.profile', [
-                'moderator' => $moderator
-            ]);
-        } else {
+        if ( auth()->guard('moderator')->user()->id != $moderator->id ) {
             abort(Response::HTTP_FORBIDDEN);
         }
+
+        return view('moderator.setting.profile', [
+            'moderator' => $moderator
+        ]);
     }
 
     public function profileUpdate(Request $request, Moderator $moderator)
     {
-        if ( auth()->guard('moderator')->user()->id === $moderator->id ) {
-            $request->validate([
-                'name'  => 'required|string|max:255',
-                'email' => [
-                    'required',
-                    'string',
-                    'email',
-                    'max:255',
-                    Rule::unique('moderators')->ignore($moderator->id),
-                ],
-            ]);
-            $moderator->update($request->all());
-
-            return redirect()->route('setting.mod.profile', [
-                'moderator' => $moderator->email
-            ])->with('success', 'Profile updated successfully');
-        } else {
+        if ( auth()->guard('moderator')->user()->email != $moderator->email ) {
             abort(Response::HTTP_FORBIDDEN);
         }
+
+        $request->validate([
+            'name'  => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('moderators')->ignore($moderator->id),
+            ],
+        ]);
+
+        $moderator->update($request->all());
+
+        return redirect()->route('setting.mod.profile', [
+            'moderator' => $moderator->email
+        ])->with('success', 'Profile updated successfully');
     }
 
 
@@ -79,18 +85,19 @@ class ModController extends Controller {
                     }
                 })
                 ->simplePaginate(Moderator::PAGINATION_COUNT),
+            'sMod'      => in_array(auth()->guard('moderator')->user()->email, self::$smod),
         ]);
     }
 
     public function newMod(Moderator $moderator)
     {
-        if ( auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com' ) {
-            return view('moderator.setting.moderator.new', [
-                'moderator' => $moderator
-            ]);
-        } else {
+        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
             abort(Response::HTTP_FORBIDDEN);
         }
+
+        return view('moderator.setting.moderator.new', [
+            'moderator' => $moderator,
+        ]);
     }
 
     public function createMod(Request $request)
@@ -125,8 +132,6 @@ class ModController extends Controller {
             'password' => Hash::make($request->password),
         ]);
 
-        event(new Registered($moderator));
-
         return redirect()->route('setting.mod')
             ->with('success', 'Moderator ' . $moderator->name . ' created successfully.');
 
@@ -134,22 +139,17 @@ class ModController extends Controller {
 
     public function editMod(Moderator $moderator)
     {
-
-        if ( auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com' ) {
-            return view('moderator.setting.moderator.edit', [
-                'moderator' => $moderator
-            ]);
-        }
-//        if ( auth()->guard('moderator')->user()->id === $moderator->id ) {
-//            return view('moderator.setting.moderator.edit', [
-//                'moderator' => $moderator
-//            ]);
-//        }
-        else {
+        if ( $moderator->email === 'imiia75775@gmail.com' ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
+        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
 
+        return view('moderator.setting.moderator.edit', [
+            'moderator' => $moderator
+        ]);
     }
 
     public function updateMod(Request $request, Moderator $moderator)
@@ -187,11 +187,6 @@ class ModController extends Controller {
 
         ]);
 
-//        if ( $request->password != null ) {
-//            $moderator->update([
-//                'password' => Hash::make($request->password),
-//            ]);
-//        }
 
         return redirect()->route('setting.mod')
             ->with('success', 'Moderator ' . $moderator->name . ' updated successfully');
@@ -199,14 +194,24 @@ class ModController extends Controller {
 
     public function deleteMod(Moderator $moderator)
     {
-        if ( auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com' ) {
-            $moderator->delete();
 
-            return redirect()->back()
-                ->with('success', 'Moderator ' . $moderator->name . ' deleted successfully');
-        } else {
+        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
             abort(Response::HTTP_FORBIDDEN);
         }
+
+        if ( $moderator->email === 'imiia75775@gmail.com' ) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
+        if ($moderator->email === auth()->guard('moderator')->user()->email ) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
+        $moderator->delete();
+
+        return redirect()->back()
+            ->with('success', 'Moderator ' . $moderator->name . ' deleted successfully');
+
 
     }
 
