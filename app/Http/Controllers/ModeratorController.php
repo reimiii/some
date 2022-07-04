@@ -13,11 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ModeratorController extends Controller {
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         if ( Auth::guard('moderator')->check() ) {

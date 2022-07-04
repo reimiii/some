@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Mod;
 
 use App\Http\Controllers\Controller;
 use App\Models\Moderator;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
@@ -18,7 +16,7 @@ class ModController extends Controller {
 
     public static $smod = [
         'imiia75775@gmail.com',
-        'michele96@example.com',
+        'annamae.glover@example.com',
         'arnold.weissnat@example.net'
     ];
 
@@ -45,17 +43,26 @@ class ModController extends Controller {
         }
 
         $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => [
+            'name'     => 'required|string|max:255',
+            'email'    => [
                 'required',
                 'string',
                 'email',
                 'max:255',
                 Rule::unique('moderators')->ignore($moderator->id),
             ],
+            'password' => [
+                'nullable',
+                'confirmed',
+                Rules\Password::defaults()
+            ],
         ]);
 
-        $moderator->update($request->all());
+        $moderator->update([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => $request->password ? Hash::make($request->password) : $moderator->password,
+        ]);
 
         return redirect()->route('setting.mod.profile', [
             'moderator' => $moderator->email
@@ -85,13 +92,15 @@ class ModController extends Controller {
                     }
                 })
                 ->simplePaginate(Moderator::PAGINATION_COUNT),
-            'sMod'      => in_array(auth()->guard('moderator')->user()->email, self::$smod),
+            'sMod'      => in_array(auth()->guard('moderator')
+                ->user()->email, Moderator::REGULAR_MODERATOR),
         ]);
     }
 
     public function newMod(Moderator $moderator)
     {
-        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
+        if ( !in_array(auth()->guard('moderator')
+            ->user()->email, Moderator::REGULAR_MODERATOR) ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
@@ -139,17 +148,19 @@ class ModController extends Controller {
 
     public function editMod(Moderator $moderator)
     {
-        if ( $moderator->email === 'imiia75775@gmail.com' ) {
+        if ( $moderator->email === Moderator::ULTRA_MODERATOR ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
-        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
+        if ( !in_array(auth()->guard('moderator')
+            ->user()->email, Moderator::REGULAR_MODERATOR) ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
         return view('moderator.setting.moderator.edit', [
             'moderator' => $moderator
         ]);
+
     }
 
     public function updateMod(Request $request, Moderator $moderator)
@@ -195,15 +206,16 @@ class ModController extends Controller {
     public function deleteMod(Moderator $moderator)
     {
 
-        if ( !in_array(auth()->guard('moderator')->user()->email, self::$smod) ) {
+        if ( !in_array(auth()->guard('moderator')
+            ->user()->email, Moderator::REGULAR_MODERATOR) ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
-        if ( $moderator->email === 'imiia75775@gmail.com' ) {
+        if ( $moderator->email === Moderator::ULTRA_MODERATOR ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 
-        if ($moderator->email === auth()->guard('moderator')->user()->email ) {
+        if ( $moderator->email === auth()->guard('moderator')->user()->email ) {
             abort(Response::HTTP_FORBIDDEN);
         }
 

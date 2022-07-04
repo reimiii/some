@@ -13,7 +13,14 @@ class Moderator extends Authenticatable {
 
     use HasFactory, Notifiable, HasApiTokens;
 
-    const PAGINATION_COUNT = 5;
+    const ULTRA_MODERATOR   = 'imiia75775@gmail.com';
+
+    const REGULAR_MODERATOR = [
+        'annamae.glover@example.com',
+        'imiia75775@gmail.com'
+    ];
+
+    const PAGINATION_COUNT  = 5;
 
     protected $guard = 'moderator';
 
@@ -26,7 +33,6 @@ class Moderator extends Authenticatable {
 
     protected $hidden = [
         'password',
-        'remember_token',
     ];
 
 

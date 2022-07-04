@@ -122,10 +122,27 @@
                                 </div>
                                 @enderror
                             </div>
+                            <div class="col-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control">
+                                @error('password')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="col-6">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="password_confirmation"
+                                       class="form-control">
+                                @error('password_confirmation')
+                                <div class="text-danger">{{ $message }}</div>
+                                @enderror
+                            </div>
 
 
                             <div class="text-start mt-3">
-                                <button type="submit" class="btn btn-dark px-4">Save Changes
+                                <button type="submit" class="btn btn-dark px-4">
+                                    Save Changes
                                 </button>
                             </div>
                         </div>

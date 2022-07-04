@@ -28,12 +28,12 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Gate::define('SSmod', function () {
-            return auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com';
-        });
-
-        Gate::define('moderator', function (Moderator $moderator) {
-            return auth()->guard('moderator')->user()->id === $moderator->id;
-        });
+//        Gate::define('SSmod', function () {
+//            return auth()->guard('moderator')->user()->email === 'imiia75775@gmail.com';
+//        });
+//
+//        Gate::define('moderator', function (Moderator $moderator) {
+//            return auth()->guard('moderator')->user()->id === $moderator->id;
+//        });
     }
 }
